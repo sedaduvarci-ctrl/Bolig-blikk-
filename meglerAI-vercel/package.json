@@ -1,0 +1,8 @@
+{
+  "name": "meglerAI",
+  "version": "1.0.0",
+  "description": "AI-assistent for eiendomsmeglere",
+  "engines": {
+    "node": "18.x"
+  }
+}
