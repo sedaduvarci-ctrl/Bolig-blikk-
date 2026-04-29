@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MeglerAI – AI for Eiendomsmeglere</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+:root {
+  --blue: #1d4ed8;
+  --blue-lt: #3b82f6;
+  --blue-pale: #eff6ff;
+  --blue-border: #bfdbfe;
+  --ink: #0f172a;
+  --muted: #64748b;
+  --border: #e2e8f0;
+  --bg: #ffffff;
+  --bg2: #f8fafc;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  overflow-x: hidden;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* ── NAV ── */
+nav {
+  position: sticky; top: 0; z-index: 99;
+  background: var(--ink);
+  padding: 0 6vw;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 58px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.logo { font-size: 1.1rem; font-weight: 700; color: #fff; text-decoration: none; letter-spacing: -.01em; }
+.logo span { color: var(--blue-lt); }
+.nav-links { display: flex; gap: 1.8rem; align-items: center; }
+.nav-links a { font-size: .83rem; font-weight: 500; color: rgba(255,255,255,.6); text-decoration: none; transition: color .15s; }
+.nav-links a:hover { color: #fff; }
+.nav-cta { background: var(--blue) !important; color: #fff !important; padding: .4rem 1.1rem; border-radius: 6px; font-size: .83rem; }
+.nav-cta:hover { background: var(--blue-lt) !important; }
+
+/* ── HERO ── */
+.hero { padding: 5rem 6vw 4rem; max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
+.badge { display: inline-flex; align-items: center; gap: .4rem; background: var(--blue-pale); color: var(--blue); border: 1px solid var(--blue-border); font-size: .75rem; font-weight: 600; padding: .25rem .7rem; border-radius: 20px; margin-bottom: 1.2rem; letter-spacing: .02em; }
+h1 { font-size: clamp(2rem, 3.5vw, 2.9rem); font-weight: 700; line-height: 1.15; letter-spacing: -.03em; margin-bottom: 1rem; color: var(--ink); }
+h1 em { font-style: italic; color: var(--blue); font-weight: 700; }
+.hero-lead { font-size: 1rem; color: var(--muted); line-height: 1.7; max-width: 42ch; margin-bottom: 2rem; }
+.hero-btns { display: flex; gap: .7rem; flex-wrap: wrap; }
+.btn { display: inline-flex; align-items: center; gap: .4rem; font-family: 'Inter', sans-serif; font-size: .88rem; font-weight: 600; text-decoration: none; padding: .65rem 1.4rem; border-radius: 8px; transition: all .18s; cursor: pointer; border: none; }
+.btn-blue { background: var(--blue); color: #fff; }
+.btn-blue:hover { background: var(--blue-lt); }
+.btn-ghost { background: transparent; color: var(--ink); border: 1.5px solid var(--border); }
+.btn-ghost:hover { border-color: #94a3b8; background: var(--bg2); }
+
+/* Hero card */
+.hero-card { background: #fff; border: 1px solid var(--border); border-radius: 14px; box-shadow: 0 4px 6px -1px rgba(0,0,0,.07), 0 20px 50px -12px rgba(29,78,216,.12); overflow: hidden; }
+.hc-top { background: var(--ink); padding: .75rem 1rem; display: flex; align-items: center; gap: .5rem; }
+.hdot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.hdr{background:#ff5f57;} .hdy{background:#ffbd2e;} .hdg{background:#28c840;}
+.hc-label { margin-left: auto; font-size: .68rem; color: rgba(255,255,255,.35); }
+.hc-body { padding: 1.2rem; }
+.chat-row { display: flex; gap: .6rem; margin-bottom: .9rem; align-items: flex-start; }
+.chat-row.right { flex-direction: row-reverse; }
+.av { width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: .65rem; font-weight: 700; }
+.av-b { background: var(--ink); color: var(--blue-lt); }
+.av-u { background: var(--blue); color: #fff; }
+.bubble { font-size: .79rem; line-height: 1.5; padding: .55rem .8rem; border-radius: 8px; max-width: 84%; }
+.b-ai { background: var(--bg2); border: 1px solid var(--border); color: var(--ink); }
+.b-user { background: var(--blue); color: #fff; }
+.src-tags { margin-top: .4rem; display: flex; gap: .3rem; flex-wrap: wrap; }
+.stag { font-size: .63rem; padding: .15rem .4rem; border-radius: 20px; background: var(--blue-pale); color: var(--blue); border: 1px solid var(--blue-border); }
+.typing { display: flex; gap: .6rem; align-items: center; opacity: .5; }
+.tdot { display: inline-block; width: 5px; height: 5px; background: var(--blue); border-radius: 50%; animation: blink 1.2s infinite; }
+.tdot:nth-child(2){animation-delay:.2s;} .tdot:nth-child(3){animation-delay:.4s;}
+@keyframes blink { 0%,80%,100%{opacity:.3;transform:scale(.85);} 40%{opacity:1;transform:scale(1.1);} }
+.hc-flag { margin: .2rem 0 0; background: #fefce8; border: 1px solid #fde68a; border-radius: 7px; padding: .6rem .85rem; font-size: .77rem; line-height: 1.5; color: #92400e; }
+.hc-flag strong { display: block; color: #78350f; margin-bottom: .15rem; font-weight: 600; }
+.hc-src { font-size: .67rem; color: var(--muted); margin-top: .3rem; }
+
+/* ── STATS ── */
+.stats-bar { background: var(--ink); padding: 2.5rem 6vw; display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; text-align: center; border-top: 1px solid rgba(255,255,255,.06); }
+.stat-n { font-size: 2.2rem; font-weight: 700; color: var(--blue-lt); line-height: 1; margin-bottom: .3rem; }
+.stat-l { font-size: .78rem; color: rgba(255,255,255,.45); }
+
+/* ── SECTION BASE ── */
+.sec { padding: 5rem 6vw; max-width: 1100px; margin: 0 auto; }
+.sec-full { padding: 5rem 6vw; }
+.sec-full > * { max-width: 1100px; margin-left: auto; margin-right: auto; }
+.sec-label { font-size: .7rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--blue); margin-bottom: .6rem; }
+h2 { font-size: clamp(1.5rem, 2.5vw, 2.1rem); font-weight: 700; letter-spacing: -.025em; line-height: 1.2; margin-bottom: .7rem; }
+h2 em { font-style: italic; color: var(--blue); }
+.sec-sub { font-size: .93rem; color: var(--muted); max-width: 48ch; line-height: 1.65; margin-bottom: 3rem; }
+.divider { border: none; border-top: 1px solid var(--border); margin: 0; }
+
+/* ── FEATURE CARDS ── */
+.feat-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.fc { background: #fff; padding: 1.8rem 1.6rem; transition: background .15s; }
+.fc:hover { background: var(--bg2); }
+.fc-icon { font-size: 1.3rem; margin-bottom: .9rem; }
+.fc h3 { font-size: .95rem; font-weight: 600; margin-bottom: .4rem; color: var(--ink); }
+.fc p { font-size: .82rem; color: var(--muted); line-height: 1.6; }
+
+/* ── STEPS ── */
+.steps-bg { background: var(--ink); }
+.steps-bg h2 { color: #fff; }
+.steps-bg h2 em { color: var(--blue-lt); }
+.steps-bg .sec-sub { color: rgba(255,255,255,.45); }
+.steps-bg .sec-label { color: rgba(59,130,246,.7); }
+.steps-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 1.5rem; position: relative; }
+.steps-grid::before { content: ''; position: absolute; top: 1.8rem; left: 2.5rem; right: 2.5rem; height: 1px; background: rgba(59,130,246,.2); }
+.step { position: relative; z-index: 1; }
+.step-num { width: 3.8rem; height: 3.8rem; border-radius: 50%; border: 1.5px solid rgba(59,130,246,.35); display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 700; color: var(--blue-lt); margin-bottom: 1.2rem; background: var(--ink); }
+.step h3 { font-size: .93rem; font-weight: 600; color: #fff; margin-bottom: .35rem; }
+.step p { font-size: .8rem; color: rgba(255,255,255,.45); line-height: 1.6; }
+
+/* ── DEMO SECTION ── */
+.demo-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 4rem; align-items: start; }
+.tick-list { list-style: none; margin-top: 1.5rem; }
+.tick-item { display: flex; gap: .8rem; align-items: flex-start; padding: .85rem 0; border-bottom: 1px solid var(--border); font-size: .85rem; color: var(--muted); line-height: 1.5; }
+.tick-item:last-child { border-bottom: none; }
+.tick-item strong { display: block; font-weight: 600; color: var(--ink); margin-bottom: .15rem; }
+.tick-ico { width: 1.8rem; height: 1.8rem; flex-shrink: 0; background: var(--blue-pale); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: .8rem; margin-top: .05rem; }
+.doc-mock { background: #fff; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,.06), 0 10px 30px -8px rgba(0,0,0,.1); }
+.doc-bar { background: var(--bg2); padding: .6rem .9rem; border-bottom: 1px solid var(--border); display: flex; gap: .35rem; align-items: center; }
+.tb { width: 24px; height: 20px; background: #fff; border: 1px solid var(--border); border-radius: 3px; font-size: .58rem; display: flex; align-items: center; justify-content: center; color: var(--muted); }
+.doc-file { margin-left: auto; font-size: .65rem; color: var(--muted); }
+.doc-body { padding: 1.4rem; }
+.doc-h { font-size: 1rem; font-weight: 700; border-bottom: 2px solid var(--blue-border); padding-bottom: .6rem; margin-bottom: 1rem; color: var(--ink); }
+.doc-s { font-size: .63rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--blue); margin: .8rem 0 .35rem; }
+.doc-t { font-size: .78rem; line-height: 1.6; color: var(--muted); }
+.doc-ai { background: var(--blue-pale); border-left: 2px solid var(--blue); padding: .5rem .7rem; margin: .5rem 0; border-radius: 0 5px 5px 0; display: flex; gap: .4rem; align-items: flex-start; font-size: .75rem; line-height: 1.5; color: var(--ink); }
+.ai-pill { background: var(--blue); color: #fff; font-size: .55rem; font-weight: 700; padding: .1rem .3rem; border-radius: 3px; flex-shrink: 0; margin-top: 1px; letter-spacing: .04em; }
+.doc-warn { font-size: .78rem; color: #b45309; }
+.doc-input-bar { border-top: 1px solid var(--border); padding: .8rem .9rem; background: var(--bg2); display: flex; gap: .45rem; font-size: .75rem; color: rgba(100,116,139,.6); align-items: center; }
+.doc-input-bar span { color: var(--blue); }
+
+/* ── EXTENSIONS ── */
+.ext-bg { background: var(--bg2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.ext-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-top: 2.5rem; }
+.ec { background: #fff; padding: 1.6rem; position: relative; transition: background .15s; }
+.ec:hover { background: var(--blue-pale); }
+.ec::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--blue); transform: scaleX(0); transform-origin: left; transition: transform .25s ease; }
+.ec:hover::before { transform: scaleX(1); }
+.ec-num { font-size: 2.2rem; font-weight: 700; color: rgba(29,78,216,.1); line-height: 1; margin-bottom: .3rem; }
+.ec h3 { font-size: .9rem; font-weight: 600; color: var(--ink); margin-bottom: .3rem; }
+.ec p { font-size: .78rem; color: var(--muted); line-height: 1.55; }
+
+/* ── FADE IN ── */
+.fade { opacity: 0; transform: translateY(16px); transition: opacity .55s ease, transform .55s ease; }
+.fade.in { opacity: 1; transform: translateY(0); }
+
+/* ── FORM ── */
+.flabel { display:block; font-size:.72rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; margin-bottom:.3rem; }
+.finput { width:100%; padding:.6rem .8rem; border:1.5px solid var(--border); border-radius:7px; font-family:'Inter',sans-serif; font-size:.85rem; color:var(--ink); background:#fff; outline:none; transition:border-color .15s; }
+.finput:focus { border-color:var(--blue); }
+.output-h { font-size:.9rem; font-weight:700; color:var(--ink); border-bottom:2px solid var(--blue-border); padding-bottom:.4rem; margin:1.2rem 0 .5rem; }
+.output-h:first-child { margin-top:0; }
+.output-p { font-size:.84rem; color:var(--muted); line-height:1.75; margin-bottom:.6rem; }
+@keyframes spin2 { to { transform:rotate(360deg); } }
+
+/* ── TABS ── */
+.tab-row { display:flex; gap:0; border-bottom:2px solid var(--border); margin-bottom:1.5rem; }
+.tab-btn { padding:.65rem 1.3rem; font-size:.83rem; font-weight:600; border:none; background:none; cursor:pointer; color:var(--muted); border-bottom:2px solid transparent; margin-bottom:-2px; transition:all .15s; font-family:'Inter',sans-serif; }
+.tab-btn.active { color:var(--blue); border-bottom-color:var(--blue); }
+.tab-btn:hover:not(.active) { color:var(--ink); }
+.tab-panel { display:none; }
+.tab-panel.active { display:block; }
+
+/* ── UPLOAD ZONE ── */
+.upload-zone { border:2px dashed var(--border); border-radius:10px; padding:2.5rem; text-align:center; cursor:pointer; transition:all .2s; background:var(--bg2); }
+.upload-zone:hover, .upload-zone.dragover { border-color:var(--blue); background:var(--blue-pale); }
+.upload-zone p { font-size:.85rem; color:var(--muted); margin:.4rem 0 0; }
+.upload-zone strong { font-size:.95rem; color:var(--ink); }
+.file-chip { display:inline-flex; align-items:center; gap:.4rem; background:#fff; border:1px solid var(--border); border-radius:20px; padding:.3rem .8rem; font-size:.75rem; color:var(--ink); margin:.3rem .2rem; }
+.file-chip-remove { background:none; border:none; cursor:pointer; color:var(--muted); font-size:.9rem; line-height:1; padding:0 0 0 .2rem; }
+.file-chip-remove:hover { color:#dc2626; }
+
+/* ── ANALYSE PANEL ── */
+.analyse-card { background:#fff; border:1px solid var(--border); border-radius:10px; margin-bottom:1rem; overflow:hidden; }
+.analyse-card-head { padding:.7rem 1rem; background:var(--bg2); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+.analyse-card-head span { font-size:.78rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
+.analyse-card-body { padding:1rem; font-size:.84rem; line-height:1.75; color:var(--ink); white-space:pre-wrap; }
+.flag-item { display:flex; gap:.6rem; padding:.6rem .8rem; border-radius:7px; margin-bottom:.4rem; font-size:.82rem; line-height:1.5; }
+.flag-warn { background:#fffbeb; border:1px solid #fde68a; color:#92400e; }
+.flag-ok { background:#f0fdf4; border:1px solid #bbf7d0; color:#166534; }
+.flag-info { background:var(--blue-pale); border:1px solid var(--blue-border); color:#1e40af; }
+.flag-icon { flex-shrink:0; font-size:.9rem; }
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  .hero { grid-template-columns: 1fr; padding: 3.5rem 6vw; }
+  .hero-card { display: none; }
+  .stats-bar { grid-template-columns: repeat(2,1fr); }
+  .feat-grid { grid-template-columns: 1fr 1fr; }
+  .steps-grid { grid-template-columns: 1fr 1fr; }
+  .steps-grid::before { display: none; }
+  .demo-grid { grid-template-columns: 1fr; }
+  .ext-grid { grid-template-columns: 1fr 1fr; }
+  .nav-links a:not(.nav-cta) { display: none; }
+}
+@media(max-width:560px){
+  .feat-grid, .ext-grid { grid-template-columns: 1fr; }
+  .steps-grid { grid-template-columns: 1fr; }
+  .stats-bar { grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="logo" href="#">Megler<span>AI</span></a>
+  <div class="nav-links">
+    <a href="#om">Om</a>
+    <a href="#demo">Demo</a>
+    <a href="#utvidelser">Fremtid</a>
+    <a href="#prov" class="nav-cta">Prøv selv →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div style="max-width:1100px;margin:0 auto;padding:0 6vw;">
+  <section class="hero" style="padding-left:0;padding-right:0;max-width:none;">
+    <div>
+      <div class="badge">AI i praksis · Eiendomsmegling</div>
+      <h1>Din <em>hjelpende hånd</em><br>gjennom salgsoppgaven</h1>
+      <p class="hero-lead">MeglerAI analyserer dokumenter og markedsdata i sanntid — og skriver et komplett, profesjonelt prospekt på sekunder.</p>
+      <div class="hero-btns">
+        <a href="#prov" class="btn btn-blue">Last opp din salgsoppgave</a>
+        <a href="#demo" class="btn btn-ghost">Se demo</a>
+      </div>
+    </div>
+    <div class="hero-card">
+      <div class="hc-top">
+        <div class="hdot hdr"></div><div class="hdot hdy"></div><div class="hdot hdg"></div>
+        <div class="hc-label">MeglerAI — Assistent</div>
+      </div>
+      <div class="hc-body">
+        <div class="chat-row right"><div class="av av-u">KH</div><div class="bubble b-user">Hva er snitt-pris pr m² på Majorstua nå?</div></div>
+        <div class="chat-row">
+          <div class="av av-b">AI</div>
+          <div>
+            <div class="bubble b-ai">Gjennomsnittlig kvadratmeterpris er <strong>kr 102 400/m²</strong>, opp 4,2 % siste år.</div>
+            <div class="src-tags"><span class="stag">📊 Eiendom Norge</span><span class="stag">📋 Finn.no</span></div>
+          </div>
+        </div>
+        <div class="chat-row right"><div class="av av-u">KH</div><div class="bubble b-user">Legg inn i salgsoppgaven</div></div>
+        <div class="typing"><div class="av av-b">AI</div><div style="display:flex;gap:.3rem;"><span class="tdot"></span><span class="tdot"></span><span class="tdot"></span></div></div>
+        <div class="hc-flag" style="margin-top:.9rem;">
+          <strong>MeglerAI flagger:</strong>
+          Høy fellesgjeld (kr 412 000) og TG2 på bad. Vurder om kjøper er gjort kjent med totalkostnaden.
+          <div class="hc-src">↗ Salgsoppgave s. 7 · Tilstandsrapport s. 14</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div><div class="stat-n">3×</div><div class="stat-l">raskere prospekt</div></div>
+  <div><div class="stat-n">48+</div><div class="stat-l">datakilder</div></div>
+  <div><div class="stat-n">98%</div><div class="stat-l">nøyaktighet</div></div>
+  <div><div class="stat-n">–65%</div><div class="stat-l">tid på research</div></div>
+</div>
+
+<hr class="divider">
+
+<!-- OM -->
+<section id="om" class="sec">
+  <div class="sec-label">Hva du får</div>
+  <h2>Utviklet for meglerhverdagen</h2>
+  <p class="sec-sub">MeglerAI samler boligdata, markedsinfo og nabolagsdetaljer — og skriver salgsoppgaven for deg.</p>
+  <div class="feat-grid fade">
+    <div class="fc"><div class="fc-icon">🏠</div><h3>Boligdata</h3><p>Priser, historikk og teknisk info fra grunnbok og matrikkel — automatisk.</p></div>
+    <div class="fc"><div class="fc-icon">📍</div><h3>Nabolag</h3><p>Skoler, transport og fasiliteter hentet og strukturert for deg.</p></div>
+    <div class="fc"><div class="fc-icon">📈</div><h3>Marked</h3><p>Pristrend, sesong og sammenlignbare salg i sanntid.</p></div>
+    <div class="fc"><div class="fc-icon">✍️</div><h3>Salgsoppgave</h3><p>Komplett prospekt generert automatisk, tilpasset din skrivestil.</p></div>
+    <div class="fc"><div class="fc-icon">🔎</div><h3>Kvalitetssikring</h3><p>Alle påstander lenkes til primærkilder. Mangler markeres automatisk.</p></div>
+    <div class="fc"><div class="fc-icon">💬</div><h3>Q&amp;A</h3><p>Still spørsmål, få svar med kilder — klart til innsetting i prospektet.</p></div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- STEPS -->
+<div class="steps-bg sec-full">
+  <div class="sec" style="padding-top:0;padding-bottom:0;">
+    <div class="sec-label">Slik virker det</div>
+    <h2>Fra adresse til<br><em>ferdig prospekt</em></h2>
+    <p class="sec-sub">Fire steg — og MeglerAI gjør størsteparten av jobben.</p>
+    <div class="steps-grid fade">
+      <div class="step"><div class="step-num">01</div><h3>Last opp dokumenter</h3><p>Takstrapport, plantegning og energiattest — AI-en leser alt automatisk.</p></div>
+      <div class="step"><div class="step-num">02</div><h3>AI analyserer og flagger</h3><p>Fellesgjeld, TG2/TG3, forkjøpsrett og heftelser flagges med forklaring.</p></div>
+      <div class="step"><div class="step-num">03</div><h3>Generer salgsoppgave</h3><p>Komplett tekst klar på sekunder, basert på dokumentinnholdet.</p></div>
+      <div class="step"><div class="step-num">04</div><h3>Publiser</h3><p>Eksporter til PDF, Finn.no eller synkroniser med ditt CRM-system.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- DEMO -->
+<section id="demo" class="sec">
+  <div class="demo-grid">
+    <div>
+      <div class="sec-label">I skriveflaten</div>
+      <h2>AI-støtte<br><em>mens du skriver</em></h2>
+      <p class="sec-sub" style="margin-bottom:0;">Assistenten sitter direkte i salgsoppgaven og fyller inn, foreslår og markerer hva som mangler.</p>
+      <ul class="tick-list fade">
+        <li class="tick-item"><div class="tick-ico">✅</div><div><strong>Automatisk utfylling</strong>Felter fylles basert på innhentet data. Du godkjenner eller avviser.</div></li>
+        <li class="tick-item"><div class="tick-ico">🔗</div><div><strong>Kildelenker</strong>Grunnbok, matrikkel og statistikk tilgjengelig med ett klikk.</div></li>
+        <li class="tick-item"><div class="tick-ico">⚠️</div><div><strong>Risikomarkering</strong>Usikker eller manglende info flagges tydelig.</div></li>
+        <li class="tick-item"><div class="tick-ico">🎨</div><div><strong>Din stil</strong>AI lærer av dine tidligere prospekter over tid.</div></li>
+      </ul>
+    </div>
+    <div class="doc-mock fade">
+      <div class="doc-bar">
+        <div class="tb">B</div><div class="tb">I</div><div class="tb">U</div>
+        <div class="doc-file">Kirkeveien 82 — Salgsoppgave</div>
+      </div>
+      <div class="doc-body">
+        <div class="doc-h">Kirkeveien 82, 0364 Oslo</div>
+        <div class="doc-s">Om boligen</div>
+        <p class="doc-t">Lys 3-roms i 4. etasje, klassisk murgård fra 1930. Oppusset 2019, meget god stand...</p>
+        <div class="doc-ai"><span class="ai-pill">AI</span><span>Snitt-pris: <strong>kr 102 400/m²</strong> (+4,2 %). Kilde: Eiendom Norge Q4 2024.</span></div>
+        <div class="doc-s">Nærområdet</div>
+        <p class="doc-t">Majorstua — gangavstand til Vigelandsparken, rikt handelstilbud...</p>
+        <div class="doc-ai"><span class="ai-pill">AI</span><span>3 barnehager innen 500m. T-bane: 4 min. Kilde: Oslo kommune.</span></div>
+        <div class="doc-s">Teknisk</div>
+        <p class="doc-warn">⚠️ Ferdigattest mangler — sjekk Byarkivet.</p>
+      </div>
+      <div class="doc-input-bar"><span>✦</span> Spør AI om eiendommen eller nærområdet...</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- EXTENSIONS -->
+<div id="utvidelser" class="ext-bg sec-full">
+  <div class="sec" style="padding-top:0;padding-bottom:0;">
+    <div class="sec-label">Kommer snart</div>
+    <h2>Plattformen som vokser med deg</h2>
+    <p class="sec-sub">Kommende funksjoner som tar MeglerAI fra assistent til komplett meglerpartner.</p>
+    <div class="ext-grid fade">
+      <div class="ec"><div class="ec-num">01</div><h3>Annonsegenerering</h3><p>Finn.no, Instagram og Facebook — automatisk i din tone.</p></div>
+      <div class="ec"><div class="ec-num">02</div><h3>CRM-integrasjon</h3><p>Synkronisering med Vitec, Webmegler og andre systemer.</p></div>
+      <div class="ec"><div class="ec-num">03</div><h3>Bildeanalyse</h3><p>AI leser boligbildene og beriker boligbeskrivelsen.</p></div>
+      <div class="ec"><div class="ec-num">04</div><h3>Prisestimering</h3><p>Prediktivt prisanslag basert på historiske data.</p></div>
+      <div class="ec"><div class="ec-num">05</div><h3>Flerspråklig</h3><p>Generer prospekter på engelsk, arabisk og mer.</p></div>
+      <div class="ec"><div class="ec-num">06</div><h3>Personlig læring</h3><p>Systemet forbedrer seg kontinuerlig etter din stil.</p></div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ══════════════════════════════════════════
+     LIVE DEMO – PRØV SELV
+     ══════════════════════════════════════════ -->
+<section id="prov" class="sec">
+  <div style="max-width:1000px;margin:0 auto;">
+    <div style="text-align:center;margin-bottom:2.5rem;">
+      <div class="sec-label">Prøv selv – gratis</div>
+      <h2>Last opp dokumenter eller fyll inn detaljer</h2>
+      <p class="sec-sub" style="margin:0 auto;">MeglerAI analyserer innhold fra takstrapporter og andre dokumenter, eller skriver direkte fra manuell input.</p>
+    </div>
+
+    <!-- TABS -->
+    <div class="tab-row">
+      <button class="tab-btn active" onclick="switchTab('upload')">📄 Last opp dokumenter</button>
+      <button class="tab-btn" onclick="switchTab('manuell')">✏️ Manuell input</button>
+    </div>
+
+    <!-- ── TAB 1: DOKUMENTOPPLASTING ── -->
+    <div id="tab-upload" class="tab-panel active">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:start;">
+
+        <!-- Venstre: opplasting + analyse -->
+        <div style="display:flex;flex-direction:column;gap:1rem;">
+
+          <!-- Upload zone -->
+          <div style="background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.05);">
+            <div style="background:var(--ink);padding:.8rem 1.1rem;"><span style="font-size:.85rem;font-weight:600;color:#fff;">Dokumenter</span></div>
+            <div style="padding:1.2rem;">
+              <div class="upload-zone" id="drop-zone" onclick="document.getElementById('doc-input').click()">
+                <div style="font-size:2rem;margin-bottom:.6rem;">📂</div>
+                <strong>Dra filer hit, eller klikk for å velge</strong>
+                <p>Takstrapport, prospekt, plantegning, energiattest</p>
+                <p style="font-size:.73rem;margin-top:.3rem;color:#94a3b8;">PDF, DOCX, JPG, PNG – opptil 20MB per fil</p>
+              </div>
+              <input type="file" id="doc-input" multiple accept=".pdf,.docx,.jpg,.jpeg,.png" style="display:none" onchange="handleFiles(this.files)">
+              <div id="file-chips" style="margin-top:.8rem;min-height:0;"></div>
+
+              <!-- Demo-knapp -->
+              <button onclick="lastDemoData()" style="width:100%;margin-top:.8rem;padding:.6rem;background:var(--bg2);border:1.5px dashed var(--border);border-radius:8px;font-size:.82rem;font-weight:500;color:var(--muted);cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">
+                ✦ Bruk eksempeldokumenter (demo)
+              </button>
+
+              <button onclick="analyserDokumenter()" id="analyse-btn" class="btn btn-blue" style="width:100%;justify-content:center;margin-top:.8rem;">
+                🔍 Analyser dokumenter
+              </button>
+            </div>
+          </div>
+
+          <!-- Analyse-resultater -->
+          <div id="analyse-panel" style="display:none;">
+            <div id="analyse-content"></div>
+          </div>
+        </div>
+
+        <!-- Høyre: generert salgsoppgave -->
+        <div id="output-panel-upload" style="background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.05);min-height:420px;">
+          <div style="background:var(--ink);padding:.8rem 1.1rem;display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-size:.85rem;font-weight:600;color:#fff;">Salgsoppgave</span>
+            <button id="copy-btn-upload" onclick="kopierTekst('upload')" style="display:none;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:5px;color:rgba(255,255,255,.8);font-family:'Inter',sans-serif;font-size:.73rem;padding:.25rem .7rem;cursor:pointer;">Kopier tekst</button>
+          </div>
+          <div id="output-upload" style="padding:1.6rem;font-size:.84rem;line-height:1.8;color:var(--ink);">
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:320px;gap:.8rem;color:var(--muted);text-align:center;">
+              <div style="font-size:2rem;">📄</div>
+              <div style="font-weight:500;color:var(--ink);font-size:.9rem;">Klar til analyse</div>
+              <div style="font-size:.8rem;max-width:24ch;">Last opp dokumenter og trykk Analyser for å generere salgsoppgaven</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TAB 2: MANUELL INPUT ── -->
+    <div id="tab-manuell" class="tab-panel">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:start;">
+
+        <div style="background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.05);">
+          <div style="background:var(--ink);padding:.8rem 1.1rem;"><span style="font-size:.85rem;font-weight:600;color:#fff;">Boligdetaljer</span></div>
+          <div style="padding:1.4rem;display:flex;flex-direction:column;gap:.9rem;">
+            <div><label class="flabel">Adresse</label><input id="fa" type="text" placeholder="f.eks. Haukeveien 3A, 1476 Rasta" class="finput"></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem;">
+              <div><label class="flabel">Boligtype</label><select id="ft" class="finput"><option>Leilighet</option><option>Enebolig</option><option>Rekkehus</option><option>Tomannsbolig</option><option>Hytte</option></select></div>
+              <div><label class="flabel">Eierform</label><select id="fe" class="finput"><option>Sameie</option><option>Selveier</option><option>Borettslag</option><option>Aksjeleilighet</option></select></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.7rem;">
+              <div><label class="flabel">m²</label><input id="fs" type="number" placeholder="68" class="finput"></div>
+              <div><label class="flabel">Rom</label><input id="fr" type="number" placeholder="3" class="finput"></div>
+              <div><label class="flabel">Byggeår</label><input id="fy" type="number" placeholder="1987" class="finput"></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem;">
+              <div><label class="flabel">Prisantydning (kr)</label><input id="fp" placeholder="4 950 000" class="finput"></div>
+              <div><label class="flabel">Fellesgjeld (kr)</label><input id="fg" placeholder="0" class="finput"></div>
+            </div>
+            <div><label class="flabel">Tilstand / oppussing</label><input id="fst" placeholder="f.eks. Oppusset bad 2021, ny bereder 2023" class="finput"></div>
+            <div><label class="flabel">Særtrekk</label><textarea id="fek" placeholder="f.eks. Sydvendt balkong, garasjeplass, nær T-bane..." class="finput" style="resize:vertical;min-height:70px;line-height:1.5;"></textarea></div>
+            <button onclick="genererManuell()" id="gen-btn" class="btn btn-blue" style="width:100%;justify-content:center;">✨ Generer salgsoppgave</button>
+          </div>
+        </div>
+
+        <div id="output-panel-manuell" style="background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.05);min-height:420px;">
+          <div style="background:var(--ink);padding:.8rem 1.1rem;display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-size:.85rem;font-weight:600;color:#fff;">Salgsoppgave</span>
+            <button id="copy-btn-manuell" onclick="kopierTekst('manuell')" style="display:none;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:5px;color:rgba(255,255,255,.8);font-family:'Inter',sans-serif;font-size:.73rem;padding:.25rem .7rem;cursor:pointer;">Kopier tekst</button>
+          </div>
+          <div id="output-manuell" style="padding:1.6rem;font-size:.84rem;line-height:1.8;color:var(--ink);">
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:320px;gap:.8rem;color:var(--muted);text-align:center;">
+              <div style="font-size:2rem;">🏡</div>
+              <div style="font-weight:500;color:var(--ink);font-size:.9rem;">Klar til å skrive</div>
+              <div style="font-size:.8rem;max-width:22ch;">Fyll inn boligdetaljer og trykk Generer</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p style="text-align:center;font-size:.73rem;color:var(--muted);margin-top:1rem;">
+      Drevet av Claude AI · Svar kan inneholde feil — bruk din faglige vurdering
+    </p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer style="background:var(--ink);padding:2rem 6vw;display:flex;align-items:center;justify-content:space-between;font-size:.78rem;color:rgba(255,255,255,.35);">
+  <a class="logo" href="#">Megler<span>AI</span></a>
+  <span>© 2025 MeglerAI</span>
+  <span>Personvern · Vilkår</span>
+</footer>
+
+<script>
+/* ── FADE IN OBSERVER ── */
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (!e.isIntersecting) return;
+    const kids = e.target.querySelectorAll(':scope > *');
+    if (kids.length > 1) kids.forEach((k,i) => k.style.transitionDelay = (i*0.06)+'s');
+    e.target.classList.add('in');
+    obs.unobserve(e.target);
+  });
+}, { threshold: 0.08 });
+document.querySelectorAll('.fade').forEach(el => obs.observe(el));
+
+/* ── TABS ── */
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  event.target.classList.add('active');
+}
+
+/* ── STORED TEXTS ── */
+const storedText = { upload: '', manuell: '' };
+
+/* ── FILE HANDLING ── */
+const uploadedFiles = [];
+
+function handleFiles(fileList) {
+  Array.from(fileList).forEach(f => {
+    if (!uploadedFiles.find(x => x.name === f.name)) uploadedFiles.push(f);
+  });
+  renderChips();
+}
+
+function renderChips() {
+  const el = document.getElementById('file-chips');
+  el.innerHTML = uploadedFiles.map((f,i) => {
+    const isReal = f instanceof File;
+    const url = isReal ? URL.createObjectURL(f) : (f.url || null);
+    const icon = (f.name||'').toLowerCase().endsWith('.pdf') ? '📄' :
+                 (f.name||'').toLowerCase().match(/\.jpe?g|\.png/) ? '🖼️' : '📄';
+    const size = f.size ? (f.size > 1048576 ? (f.size/1048576).toFixed(1)+' MB' : Math.round(f.size/1024)+' KB') : '';
+    const nameHtml = url
+      ? `<a href="${url}" target="_blank" style="color:var(--blue);text-decoration:none;font-weight:500;" title="Åpne dokument">${icon} ${f.name}</a>`
+      : `<span style="font-weight:500;">${icon} ${f.name}</span>`;
+    return `<span class="file-chip">
+      ${nameHtml}
+      ${size ? `<span style="color:var(--muted);font-size:.7rem;margin-left:2px;">${size}</span>` : ''}
+      <button class="file-chip-remove" onclick="removeFile(${i})">×</button>
+    </span>`;
+  }).join('');
+}
+
+function removeFile(i) { uploadedFiles.splice(i,1); renderChips(); }
+
+/* Drag & drop */
+const dz = document.getElementById('drop-zone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('dragover'); handleFiles(e.dataTransfer.files); });
+
+/* ── DEMO DATA ── */
+const DEMO_CONTEXT = `
+=== TAKSTRAPPORT (Skovveien 12, 0264 Oslo) ===
+Adresse: Skovveien 12, leilighet H0302, 3. etasje, 0264 Oslo
+Boligtype: Selveierleilighet i klassisk murgård fra 1928
+Primærrom (P-ROM): 98 m² | Bruksareal (BRA): 104 m²
+Byggeår: 1928, gjennomgående renovert 2018
+Etasjer i bygg: 4 + kjeller
+
+Tilstandsvurderinger:
+- Kjøkken: TG1 (god stand) – Kvik kjøkken 2018, Bosch integrerte hvitevarer
+- Stue: TG1 – originale eikeparkettgulv, pusset opp 2018, Jøtul peis
+- Bad/WC: TG2 – flislagt, elektrisk gulvvarme, fra 2004. Anbefalt oppgradering innen 5 år
+- Vinduer: TG1 – nye 3-lags vinduer montert 2018
+- Tak/konstruksjon: TG1 – betongkonstruksjon, god stand
+
+Oppvarming: Fjernvarme (HAFSLUND) – varmtvann inkludert i felleskostnader
+Verditakst: kr 7 200 000
+Teknisk verdi inkl. tomt: kr 4 850 000
+Fellesgjeld (andel): kr 340 000
+Felleskostnader: kr 4 200/mnd (inkl. varmtvann og vaktmester)
+
+=== PLANTEGNING ===
+Planløsning: Gjennomgående, 4 rom totalt
+- Stue/kjøkken: Åpen løsning, ca. 42 m², sydvendt
+- Soverom 1: 16 m², mot sør
+- Soverom 2: 12 m², mot nord  
+- Bad/WC: 6 m², flislagt
+- Vaskerom: 4 m², separat
+- Balkong: Sydvendt, 8 m², direkte fra stue
+- Gang/entre: 8 m²
+
+=== ENERGIATTEST ===
+Energikarakter: B (oransje)
+Primær oppvarmingskilde: Fjernvarme
+Sekundær: Elektrisk panelovner
+
+=== BELIGGENHET ===
+- Rolig gate i søndre Frogner, 200m fra Bygdøy Allé
+- Gangavstand: Frognerparken 7 min, Aker Brygge 15 min
+- Kollektivt: Buss 30 og 31 rett utenfor (3 min til sentrum)
+- Butikker og kafeer: 2-3 min gange
+- Nærskole: Uranienborg skole (600m)
+`;
+
+function lastDemoData() {
+  uploadedFiles.length = 0;
+  const demoFiles = [
+    { name: 'Takstrapport_Skovveien12.pdf', size: 2450000, url: 'https://www.w3.org/WAI/WCAG21/Techniques/pdf/PDF1.pdf' },
+    { name: 'Plantegning_leilighet_H0302.pdf', size: 1100000, url: 'https://www.w3.org/WAI/WCAG21/Techniques/pdf/PDF2.pdf' },
+    { name: 'Energiattest_B_2024.pdf', size: 340000, url: 'https://www.w3.org/WAI/WCAG21/Techniques/pdf/PDF4.pdf' },
+  ];
+  demoFiles.forEach(f => uploadedFiles.push(f));
+  renderChips();
+  window._demoMode = true;
+  
+  // Vis en liten bekreftelse
+  const btn = event.target;
+  btn.textContent = '✓ Eksempeldokumenter lastet inn';
+  btn.style.color = '#166534';
+  btn.style.borderColor = '#166534';
+  setTimeout(() => {
+    btn.textContent = '✦ Bruk eksempeldokumenter (demo)';
+    btn.style.color = '';
+    btn.style.borderColor = '';
+  }, 2500);
+}
+
+/* ── ANALYSER DOKUMENTER ── */
+async function analyserDokumenter() {
+  if (uploadedFiles.length === 0) { alert('Last opp minst ett dokument, eller bruk eksempeldokumentene.'); return; }
+
+  const btn = document.getElementById('analyse-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span style="display:inline-block;animation:spin2 .8s linear infinite;margin-right:.4rem;">⟳</span> Analyserer...';
+
+  const outputEl = document.getElementById('output-upload');
+  outputEl.innerHTML = spinner('AI analyserer dokumentene og skriver salgsoppgaven…');
+  document.getElementById('copy-btn-upload').style.display = 'none';
+  document.getElementById('analyse-panel').style.display = 'none';
+
+  const fileNames = uploadedFiles.map(f => f.name).join(', ');
+  const isDemoMode = window._demoMode || uploadedFiles.some(f => f.name && f.name.includes('Skovveien'));
+
+  const docContext = isDemoMode ? DEMO_CONTEXT : `Opplastede filer: ${fileNames}\n(Ingen tekstinnhold tilgjengelig – bruk eksempeldokumentene for full demo)`;
+
+  // To separate API calls to avoid token truncation mid-JSON
+  const analysePrompt = `Analyser disse eiendomsdokumentene. Returner KUN JSON (ingen markdown, ingen forklaring):
+{"analyse":{"adresse":"...","type":"...","areal":"...","byggeaar":"...","energi":"...","prisantydning":"...","fellesgjeld":"...","felleskostnader":"..."},"flags":[{"type":"warn","tittel":"...","tekst":"..."}]}
+Lag 3-5 flags (type: warn/ok/info). DOKUMENTINNHOLD:
+${docContext}`;
+
+  const salgsPrompt = `Skriv en komplett norsk salgsoppgave. Returner KUN JSON (ingen markdown, ingen forklaring):
+{"innledning":"selgende 2-3 setninger","om_boligen":"3 avsnitt om rom og standard","beliggenhet":"2 avsnitt om beliggenhet","teknisk":"1 avsnitt teknisk og energi","oekonomi":"1 avsnitt priser og kostnader"}
+DOKUMENTINNHOLD:
+${docContext}`;
+
+  const parseJ = async (res) => {
+    const d = await res.json();
+    const raw = d.content.map(c => c.text||'').join('');
+    const s = raw.indexOf('{'), e = raw.lastIndexOf('}');
+    if (s === -1 || e === -1) throw new Error('Ingen JSON i svar');
+    return JSON.parse(raw.slice(s, e + 1));
+  };
+
+  try {
+    document.getElementById('output-upload').innerHTML = spinner('Analyserer dokumenter…');
+    const [r1, r2] = await Promise.all([
+      fetch('https://api.anthropic.com/v1/messages', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:800,
+          system:'Returner KUN gyldig JSON-objekt. Ingen markdown.',
+          messages:[{role:'user', content:analysePrompt}] })
+      }),
+      fetch('https://api.anthropic.com/v1/messages', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:2000,
+          system:'Returner KUN gyldig JSON-objekt. Ingen markdown.',
+          messages:[{role:'user', content:salgsPrompt}] })
+      })
+    ]);
+    document.getElementById('output-upload').innerHTML = spinner('Skriver salgsoppgaven…');
+    const [a, s] = await Promise.all([parseJ(r1), parseJ(r2)]);
+    const combined = {...a, salgsoppgave: s};
+    visAnalyse(combined);
+    visOutputFraAnalyse(combined);
+    document.getElementById('copy-btn-upload').style.display = 'block';
+  } catch(e) {
+    console.error('API-feil:', e);
+    const fallback = getFallbackAnalyse();
+    visAnalyse(fallback);
+    visOutputFraAnalyse(fallback);
+    document.getElementById('copy-btn-upload').style.display = 'block';
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '🔍 Analyser dokumenter';
+}
+
+function visAnalyse(result) {
+  const panel = document.getElementById('analyse-panel');
+  const content = document.getElementById('analyse-content');
+  const a = result.analyse || {};
+  const flags = result.flags || [];
+
+  const dataRows = Object.entries({
+    'Adresse': a.adresse, 'Type': a.type, 'Areal': a.areal,
+    'Byggeår': a.byggeaar, 'Energi': a.energi,
+    'Prisantydning': a.prisantydning, 'Fellesgjeld': a.fellesgjeld,
+    'Felleskostnader': a.felleskostnader
+  }).filter(([,v])=>v).map(([k,v]) => `
+    <div style="display:flex;gap:.5rem;padding:.4rem 0;border-bottom:1px solid var(--border);font-size:.82rem;">
+      <span style="color:var(--muted);min-width:110px;flex-shrink:0;">${k}</span>
+      <span style="font-weight:500;color:var(--ink);">${v}</span>
+    </div>`).join('');
+
+  const flagsHtml = flags.map(f => {
+    const cls = f.type === 'warn' ? 'flag-warn' : f.type === 'ok' ? 'flag-ok' : 'flag-info';
+    const ico = f.type === 'warn' ? '⚠️' : f.type === 'ok' ? '✅' : 'ℹ️';
+    return `<div class="flag-item ${cls}">
+      <span class="flag-icon">${ico}</span>
+      <div><strong style="display:block;font-weight:600;margin-bottom:2px;">${f.tittel}</strong>${f.tekst}</div>
+    </div>`;
+  }).join('');
+
+  // Build document links from uploadedFiles
+  const docLinksHtml = uploadedFiles.map(f => {
+    const isReal = f instanceof File;
+    const url = isReal ? URL.createObjectURL(f) : (f.url || null);
+    const icon = (f.name||'').toLowerCase().endsWith('.pdf') ? '📄' :
+                 (f.name||'').toLowerCase().match(/\.jpe?g|\.png/) ? '🖼️' : '📄';
+    return url
+      ? `<a href="${url}" target="_blank" style="display:inline-flex;align-items:center;gap:.3rem;font-size:.78rem;color:var(--blue);text-decoration:none;padding:.3rem .7rem;background:var(--blue-pale);border:1px solid var(--blue-border);border-radius:20px;font-weight:500;" title="Åpne ${f.name}">${icon} ${f.name} ↗</a>`
+      : `<span style="display:inline-flex;align-items:center;gap:.3rem;font-size:.78rem;color:var(--muted);padding:.3rem .7rem;background:var(--bg2);border:1px solid var(--border);border-radius:20px;">${icon} ${f.name}</span>`;
+  }).join(' ');
+
+  const docLinksSection = uploadedFiles.length > 0 ? `
+    <div class="analyse-card">
+      <div class="analyse-card-head"><span>Kildedokumenter</span><span style="font-size:.72rem;color:var(--muted);">${uploadedFiles.length} fil${uploadedFiles.length!==1?'er':''}</span></div>
+      <div style="padding:.8rem 1rem;display:flex;flex-wrap:wrap;gap:.4rem;">${docLinksHtml}</div>
+    </div>` : '';
+
+  content.innerHTML = `
+    ${docLinksSection}
+    <div class="analyse-card">
+      <div class="analyse-card-head"><span>Nøkkeldata fra dokumenter</span></div>
+      <div style="padding:1rem;">${dataRows}</div>
+    </div>
+    <div class="analyse-card">
+      <div class="analyse-card-head"><span>AI-flagging</span><span style="font-size:.72rem;color:var(--muted);">${flags.length} funn</span></div>
+      <div style="padding:.8rem 1rem;">${flagsHtml}</div>
+    </div>`;
+  panel.style.display = 'block';
+}
+
+function visOutputFraAnalyse(result) {
+  const s = result.salgsoppgave || {};
+  const tekst = [
+    s.innledning || '',
+    '\n\nOM BOLIGEN\n' + (s.om_boligen || ''),
+    '\n\nBELIGGENHET\n' + (s.beliggenhet || ''),
+    '\n\nTEKNISK INFORMASJON\n' + (s.teknisk || ''),
+    '\n\nØKONOMI\n' + (s.oekonomi || '')
+  ].join('');
+  storedText.upload = tekst;
+
+  const html = `
+    <div><div class="output-h" style="margin-top:0;">Innledning</div><div class="output-p" style="font-style:italic;">${s.innledning||''}</div></div>
+    <div><div class="output-h">Om boligen</div><div class="output-p">${(s.om_boligen||'').replace(/\n/g,'<br>')}</div></div>
+    <div><div class="output-h">Beliggenhet</div><div class="output-p">${(s.beliggenhet||'').replace(/\n/g,'<br>')}</div></div>
+    <div><div class="output-h">Teknisk informasjon</div><div class="output-p">${(s.teknisk||'').replace(/\n/g,'<br>')}</div></div>
+    <div><div class="output-h">Økonomi</div><div class="output-p">${(s.oekonomi||'').replace(/\n/g,'<br>')}</div></div>`;
+  document.getElementById('output-upload').innerHTML = html;
+}
+
+/* ── MANUELL GENERERING ── */
+async function genererManuell() {
+  const adresse = document.getElementById('fa').value.trim();
+  if (!adresse) { alert('Fyll inn adresse.'); return; }
+
+  const btn = document.getElementById('gen-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span style="display:inline-block;animation:spin2 .8s linear infinite;margin-right:.4rem;">⟳</span> Skriver salgsoppgave...';
+
+  document.getElementById('output-manuell').innerHTML = spinner('AI skriver salgsoppgaven…');
+  document.getElementById('copy-btn-manuell').style.display = 'none';
+
+  const v = {
+    type: document.getElementById('ft').value,
+    eier: document.getElementById('fe').value,
+    strl: document.getElementById('fs').value,
+    rom: document.getElementById('fr').value,
+    aar: document.getElementById('fy').value,
+    pris: document.getElementById('fp').value,
+    gjeld: document.getElementById('fg').value,
+    stand: document.getElementById('fst').value,
+    ekstra: document.getElementById('fek').value
+  };
+
+  const prompt = `Skriv en komplett, profesjonell norsk salgsoppgave for:
+
+Adresse: ${adresse}
+Type: ${v.type} (${v.eier})
+Størrelse: ${v.strl||'?'} m², ${v.rom||'?'} rom, byggeår ${v.aar||'?'}
+Prisantydning: kr ${v.pris||'ikke oppgitt'}${v.gjeld&&v.gjeld!=='0'?', fellesgjeld kr '+v.gjeld:''}
+Tilstand: ${v.stand||'ikke oppgitt'}
+Særtrekk: ${v.ekstra||'ikke oppgitt'}
+
+Skriv med disse seksjonene (bruk ## for overskrifter):
+## Innledning
+## Om boligen
+## Beliggenhet og nærområde
+## Fasiliteter og innhold
+## Økonomi
+## Praktisk informasjon
+
+Bruk profesjonelt, varmt og selgende norsk meglerspråk.`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: 'Du er en ekspert på norsk eiendomsmegling. Skriv profesjonelle, selgende salgsoppgaver på norsk. Bruk ## for seksjonsoverskrifter og **bold** for viktige tall og detaljer.',
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    const tekst = data.content.map(c => c.text||'').join('');
+    storedText.manuell = tekst;
+    visOutput(tekst, 'output-manuell');
+    document.getElementById('copy-btn-manuell').style.display = 'block';
+  } catch(e) {
+    document.getElementById('output-manuell').innerHTML = `<div style="padding:1rem;color:#b91c1c;font-size:.85rem;text-align:center;">Noe gikk galt: ${e.message}</div>`;
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '✨ Generer salgsoppgave';
+}
+
+/* ── HELPERS ── */
+function spinner(msg) {
+  return `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:320px;gap:1rem;color:var(--muted);">
+    <div style="width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin2 .8s linear infinite;"></div>
+    <div style="font-size:.84rem;">${msg}</div>
+  </div>`;
+}
+
+function visOutput(tekst, elId) {
+  const el = document.getElementById(elId);
+  const html = tekst.split('\n\n').map(b => {
+    if (b.startsWith('## ')) return '<div class="output-h">' + b.replace('## ','') + '</div>';
+    if (b.trim()) return '<div class="output-p">' + b.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>') + '</div>';
+    return '';
+  }).join('');
+  el.innerHTML = '<div>' + html + '</div>';
+}
+
+function kopierTekst(mode) {
+  const tekst = storedText[mode];
+  if (!tekst) return;
+  navigator.clipboard.writeText(tekst).then(() => {
+    const b = document.getElementById('copy-btn-'+mode);
+    b.textContent = '✓ Kopiert!';
+    setTimeout(() => b.textContent = 'Kopier tekst', 2000);
+  });
+}
+
+/* ── FALLBACK ── */
+function getFallbackAnalyse() {
+  return {
+    analyse: { adresse: 'Skovveien 12, 0264 Oslo', type: 'Selveierleilighet', areal: '98 / 104 m²', byggeaar: '1928, renovert 2018', energi: 'B', prisantydning: 'kr 7 200 000', fellesgjeld: 'kr 340 000', felleskostnader: 'kr 4 200/mnd' },
+    flags: [
+      { type: 'warn', tittel: 'TG2 – Bad (2004)', tekst: 'Badet er fra 2004 og har fått tilstandsgrad TG2. Anbefalt oppgradering innen 5 år. Bør fremkomme tydelig i salgsoppgaven.' },
+      { type: 'ok', tittel: 'Nylig renovert kjøkken', tekst: 'Kjøkken ble totalrenovert i 2018 med ny innredning og hvitevarer. TG1.' },
+      { type: 'warn', tittel: 'Fellesgjeld kr 340 000', tekst: 'Andel fellesgjeld er kr 340 000. Totalbeløp inkl. fellesgjeld: kr 7 540 000. Bør synliggjøres for kjøper.' },
+      { type: 'info', tittel: 'Energikarakter B', tekst: 'God energikarakter. Fjernvarme inkludert i felleskostnader gir forutsigbar oppvarmingskostnad.' },
+      { type: 'ok', tittel: 'Sydvendt balkong 8 m²', tekst: 'Attraktivt for kjøper. Fremhev i salgsoppgaven.' }
+    ],
+    salgsoppgave: {
+      innledning: 'En sjelden perle på Frogner — lys og gjennomgående selveierleilighet med klassisk sjarm fra 1928, totalrenovert i 2018 og klar for innflytting.',
+      om_boligen: 'Leiligheten er beliggende i 3. etasje i et solid murgårdsbygg fra 1928, og byr på en gjennomgående og velplanlagt løsning med 4 rom fordelt på romslige 98 kvadratmeter primærrom.\n\nStuen er boligens naturlige samlingspunkt med vakre originale eikeparkettgulv, klassisk Jøtul-peis og store vinduer som slipper inn rikelig med dagslys. Fra stuen er det sømløs overgang til det stilrene kjøkkenet fra 2018, komplett med Kvik innredning og integrerte Bosch hvitevarer.\n\nDe to soverommene er velavgrensede og romslige. Badet er flislagt med elektrisk gulvvarme. I tillegg disponerer leiligheten et separat vaskerom. Fra stuen har man direkte adgang til en sydvendt balkong på 8 m² — et fristed store deler av året.',
+      beliggenhet: 'Skovveien 12 ligger i rolige og grønne omgivelser sør på Frogner, et av Oslos mest ettertraktede boligstrøk. Frognerparken er kun 7 minutters gange unna, og Bygdøy Allé med sitt brede utvalg av butikker, kafeer og restauranter ligger like i nærheten. Uranienborg skole er 600 meter unna. Busslinjene 30 og 31 stopper rett utenfor og tar deg til sentrum på få minutter.',
+      teknisk: 'Bygget er en solid betongkonstruksjon fra 1928. Leiligheten ble gjennomgående renovert i 2018, inkludert nye 3-lags vinduer. Oppvarming skjer via fjernvarme fra Hafslund, og varmtvann er inkludert i felleskostnadene — noe som gir svært forutsigbare boutgifter. Energikarakter B.',
+      oekonomi: 'Prisantydning: kr 7 200 000. Andel fellesgjeld: kr 340 000. Totalkostnad inkl. fellesgjeld: kr 7 540 000. Månedlige felleskostnader: kr 4 200 (inkluderer varmtvann og vaktmester). Eierform: Selveier.'
+    }
+  };
+}
+</script>
+</body>
+</html>
